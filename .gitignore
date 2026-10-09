@@ -1,6 +1,9 @@
 # Evaluation outputs (runs, reports); archive selected results elsewhere
 evaluation/runs/
 
+# Clones of the reference and registry repos (see evaluation/config.toml)
+.cache/
+
 # Python
 __pycache__/
 *.py[cod]

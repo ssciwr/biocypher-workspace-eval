@@ -1,13 +1,13 @@
 """Import the agentic-workspace backend from a biocypher-components-registry checkout.
 
 The registry is not an installable package, so the evaluation imports its
-workspace modules from a checkout: [pins] registry_repo in config.toml
-(relative to this repository), or EVAL_REGISTRY_REPO. The checkout's git
-commit is recorded with every run; check out the backend version you want
-to evaluate there.
+workspace modules from a checkout: a clone of [pins] registry_repo at
+registry_commit (config.toml), or a local checkout given by EVAL_REGISTRY_REPO.
+The checkout's git commit is recorded with every run.
 """
 
 import importlib
+import subprocess
 import sys
 from pathlib import Path
 
@@ -20,11 +20,14 @@ class BackendNotFoundError(ImportError):
 
 def load(config: dict | None = None):
     """Return (client_loop, service) modules of the registry backend."""
-    repo = cfg.registry_repo(config or cfg.load())
+    try:
+        repo = cfg.registry_repo(config or cfg.load())
+    except subprocess.CalledProcessError as error:  # offline and no clone yet
+        raise BackendNotFoundError(f"cannot clone the registry: {error}") from error
     if not (repo / "src" / "core" / "workspace" / "service.py").exists():
         raise BackendNotFoundError(
             f"no biocypher-components-registry checkout at {repo}; "
-            "set [pins] registry_repo or EVAL_REGISTRY_REPO"
+            "set [pins] registry_repo/registry_commit or EVAL_REGISTRY_REPO"
         )
     if str(repo) not in sys.path:
         sys.path.insert(0, str(repo))

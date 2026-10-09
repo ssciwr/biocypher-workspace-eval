@@ -1,6 +1,7 @@
 """Configuration, prompts and mutant patches stay consistent."""
 
 import os
+import subprocess
 
 import pytest
 
@@ -27,10 +28,13 @@ def test_mutant_expectations_are_known_checks():
         assert mutant.expected_failures <= set(grader.ADAPTER_CHECKS)
 
 
-REFERENCE = cfg.reference_repo(cfg.load())
+try:
+    REFERENCE = cfg.reference_repo(cfg.load())
+except subprocess.CalledProcessError:  # offline and no clone yet
+    REFERENCE = None
 
 
-@pytest.mark.skipif(not REFERENCE.exists(), reason="reference repo not available")
+@pytest.mark.skipif(REFERENCE is None, reason="reference repo not available")
 def test_mutants_apply_to_reference():
     source = grader.reference_adapter_source(REFERENCE)
     for mutant in MUTANTS:
@@ -45,7 +49,7 @@ def test_patch_must_match_once():
 
 
 @pytest.mark.skipif(
-    not (REFERENCE.exists() and os.getenv("EVAL_SLOW")),
+    not (REFERENCE is not None and os.getenv("EVAL_SLOW")),
     reason="set EVAL_SLOW=1 (needs uv, network on first run)",
 )
 def test_grader_validation_end_to_end():

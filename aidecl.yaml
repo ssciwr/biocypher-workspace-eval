@@ -75,7 +75,7 @@ ai_usage:
       description: runner, grader, probe, mutants, metrics, configuration, prompts, pinned data
       ai_involvement: >-
         Agent-written. Grader validated against the synthetic-ppi-reference
-        repository and seven mutants; runner smoke-tested end to end with a
+        repository (https://github.com/ssciwr/synthetic-ppi-reference) and seven mutants; runner smoke-tested end to end with a
         scripted fake model (real MCP session, seeding, grading).
       tools_used: [Claude Code]
       notes: Not yet reviewed by a human; not yet run against a real model.

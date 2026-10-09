@@ -2,7 +2,7 @@
 
 How to quantitatively compare models (open-weight via LiteLLM, Claude as reference) on building a simple BioCypher adapter for the [Synthetic Protein Interaction Dataset](https://doi.org/10.5281/zenodo.21455347) (Zenodo, version 1.0.5). Setup of the proxy and the workspace is described in [testing_agentic_workspace.md](./testing_agentic_workspace.md).
 
-**Implementation:** the harness (runner, grader, metrics, prompts, pinned data) is in [`evaluation/`](../evaluation/) of this repository (usage in the [README](../README.md)); the backend under test is a checkout of [biocypher-components-registry](https://github.com/ssciwr/biocypher-components-registry); the reference solution is the separate repository **synthetic-ppi-reference**. This document is the design rationale; where numbers or texts differ, the files there are canonical.
+**Implementation:** the harness (runner, grader, metrics, prompts, pinned data) is in [`evaluation/`](../evaluation/) of this repository (usage in the [README](../README.md)); the backend under test is a checkout of [biocypher-components-registry](https://github.com/ssciwr/biocypher-components-registry); the reference solution is the separate repository [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference). This document is the design rationale; where numbers or texts differ, the files there are canonical.
 
 The goal is not one "score" per model but a profile that shows **where** in the orchestration a model breaks: emitting tool calls, following the mandatory protocol, writing correct code, recovering from errors, or reporting its own result honestly.
 
@@ -74,7 +74,7 @@ L6 versus the sum of L2–L5 shows the cost of **long-horizon** work: models tha
 
 ### 3.2 Seeded reference state
 
-For L3–L5, the runner seeds the workspace with the **pristine scaffold**: the root commit of the synthetic-ppi-reference repository, which is the unmodified output of the cookiecutter template (commit `01d32f1`) run exactly as the MCP instructions describe, with none of its defects fixed (3.4). It goes to `synthetic-ppi/`, the dataset to `synthetic-ppi/data/`. This decouples the levels: L3 measures implementation only.
+For L3–L5, the runner seeds the workspace with the **pristine scaffold**: the root commit of the [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference) repository, which is the unmodified output of the cookiecutter template (commit `01d32f1`) run exactly as the MCP instructions describe, with none of its defects fixed (3.4). It goes to `synthetic-ppi/`, the dataset to `synthetic-ppi/data/`. This decouples the levels: L3 measures implementation only.
 
 The **reference solution** (3.5) validates the grader (section 5).
 
@@ -117,7 +117,7 @@ The adapter environment needs Python ≥ 3.13 (template requirement). The worksp
 
 ### 3.5 Reference solution
 
-The repository **synthetic-ppi-reference** holds the verified reference: `git diff <root commit>` is the complete solution (adapter, schema, tests, `pyarrow` dependency, data path, un-ignored `data/`). Verified with Python 3.13.12, BioCypher 0.17.0 and pyarrow 26.0.0: 11 tests pass, the graph build writes 15 `Protein` and 21 `PairwiseMolecularInteraction` records with `bool` flag columns, and its tests catch all grader mutants.
+The repository [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference) holds the verified reference: `git diff <root commit>` is the complete solution (adapter, schema, tests, `pyarrow` dependency, data path, un-ignored `data/`). Verified with Python 3.13.12, BioCypher 0.17.0 and pyarrow 26.0.0: 11 tests pass, the graph build writes 15 `Protein` and 21 `PairwiseMolecularInteraction` records with `bool` flag columns, and its tests catch all grader mutants.
 
 ## 4. Prompts
 

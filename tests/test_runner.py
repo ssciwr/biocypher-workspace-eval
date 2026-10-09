@@ -8,7 +8,7 @@ import pytest
 from evaluation import config as cfg
 
 runner = pytest.importorskip(
-    "evaluation.runner", reason="registry checkout not available", exc_type=ImportError
+    "evaluation.runner", reason="registry clone not available", exc_type=ImportError
 )
 
 

@@ -1,0 +1,101 @@
+# Evaluation configuration. Changing anything under [pins], [run] or a
+# level starts a new evaluation round: results are only comparable within
+# one configuration (its hash is stored with every run).
+
+[pins]
+mcp_url = "https://mcp.biocypher.org/mcp"
+# Reference repo: its root commit is the pristine scaffold seeded for L3-L5,
+# its HEAD the reference solution. Relative to this repository; override
+# with EVAL_REFERENCE_REPO.
+reference_repo = "../synthetic-ppi-reference"
+# Registry checkout providing the workspace backend under test (not
+# installable; imported from this path). Relative to this repository;
+# override with EVAL_REGISTRY_REPO. Its commit is recorded per run.
+registry_repo = "../biocypher-components-registry"
+project_dir = "synthetic-ppi"
+python = "3.13"
+
+[workspace_env]
+# Packages in the per-run venv that run_command uses (the user-selected
+# environment in real use). Provided so models don't spend cycles on setup.
+packages = ["cookiecutter", "pytest", "biocypher==0.17.0", "pyarrow", "pandas"]
+
+[run]
+repetitions = 5
+question_reply = "Proceed with your best judgement and complete the task."
+max_replies = 2
+mcp_result_max_chars = 20000
+max_tokens = 16000
+grade_timeout_seconds = 900
+
+# Levels: dataset = none | clean | original; seed_scaffold copies the
+# reference repo's root commit to <project_dir>/ and puts the dataset into
+# <project_dir>/data/, otherwise the dataset goes to data/.
+[levels.L0]
+dataset = "none"
+seed_scaffold = false
+max_calls = 10
+max_minutes = 10
+final_marker = "TEMPLATE:"
+
+[levels.L1]
+dataset = "original"
+seed_scaffold = false
+max_calls = 10
+max_minutes = 10
+final_marker = "ROWS:"
+
+[levels.L2]
+dataset = "original"
+seed_scaffold = false
+max_calls = 25
+max_minutes = 20
+final_marker = "STATUS:"
+
+[levels.L3]
+dataset = "clean"
+seed_scaffold = true
+max_calls = 40
+max_minutes = 30
+final_marker = "STATUS:"
+
+[levels.L4]
+dataset = "clean"
+seed_scaffold = true
+max_calls = 60
+max_minutes = 30
+final_marker = "STATUS:"
+
+[levels.L5]
+dataset = "original"
+seed_scaffold = true
+max_calls = 60
+max_minutes = 30
+final_marker = "STATUS:"
+
+[levels.L6]
+dataset = "original"
+seed_scaffold = false
+max_calls = 100
+max_minutes = 45
+final_marker = "STATUS:"
+
+# Models: name = CLAUDE_MODEL (a LiteLLM alias behind a proxy, see the
+# registry's deploy/litellm/config.yaml);
+# base_url empty = Anthropic API directly; api_key_env names the env var
+# holding the key (the LiteLLM master key for the proxy).
+[[models]]
+name = "claude-opus-4-8"
+base_url = ""
+api_key_env = "ANTHROPIC_API_KEY"
+
+[[models]]
+name = "gpt-4.1"
+base_url = "http://127.0.0.1:4000"
+api_key_env = "LITELLM_MASTER_KEY"
+
+# Open-weight example (add the alias to the registry's deploy/litellm/config.yaml):
+# [[models]]
+# name = "local-qwen"
+# base_url = "http://127.0.0.1:4000"
+# api_key_env = "LITELLM_MASTER_KEY"

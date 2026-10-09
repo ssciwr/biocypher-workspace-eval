@@ -1,0 +1,27 @@
+[project]
+name = "biocypher-workspace-eval"
+version = "0.1.0"
+description = "Testing and quantitative model evaluation of the BioCypher agentic workspace"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+# Runtime needs of the registry's workspace modules (imported from the
+# registry checkout, see evaluation/backend.py), same bounds as the registry,
+# plus pyyaml for the grader's schema check.
+dependencies = [
+    "anthropic>=0.121,<1",
+    "httpx",
+    "mcp>=2.0,<3",
+    "prompt-toolkit",
+    "pyyaml>=6.0.3",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit",
+    "pytest",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

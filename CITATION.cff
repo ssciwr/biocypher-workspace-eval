@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "biocypher-workspace-eval: testing and model evaluation of the BioCypher agentic workspace"
+abstract: >-
+  Harness to quantitatively compare language models in the BioCypher agentic
+  workspace: a task ladder for building a BioCypher adapter for a synthetic
+  protein interaction dataset, automatic grading against a ground truth, and
+  per-run process metrics.
+type: software
+authors:
+  - given-names: Inga
+    family-names: Ulusoy
+    affiliation: Scientific Software Center, Heidelberg University
+version: 0.1.0
+license: MIT
+keywords:
+  - BioCypher
+  - knowledge graphs
+  - LLM evaluation
+  - agents
+references:
+  - type: data
+    title: Synthetic Protein Interaction Dataset
+    authors:
+      - given-names: Edwin
+        family-names: Carreño
+        affiliation: Heidelberg University
+        orcid: "https://orcid.org/0009-0005-3359-2211"
+    version: 1.0.5
+    doi: 10.5281/zenodo.21455347
+    date-released: 2026-07-20
+    license: MIT
+  - type: software
+    title: BioCypher Components Registry
+    authors:
+      - name: Scientific Software Center, Heidelberg University
+    repository-code: https://github.com/ssciwr/biocypher-components-registry
+    license: MIT
+  - type: article
+    title: Democratizing knowledge representation with BioCypher
+    authors:
+      - given-names: Sebastian
+        family-names: Lobentanzer
+      - name: "and others"
+    journal: Nature Biotechnology
+    volume: 41
+    start: 1056
+    end: 1059
+    year: 2023
+    doi: 10.1038/s41587-023-01848-y

@@ -1,0 +1,20 @@
+# Evaluation outputs (runs, reports); archive selected results elsewhere
+evaluation/runs/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Secrets
+.env
+.env.*
+*.key
+
+# Agent and session working files
+.claude/
+.agents/
+.cursor/
+.rseng-agent-skills-*

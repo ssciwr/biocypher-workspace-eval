@@ -1,0 +1,93 @@
+schema_version: "1.0.0"
+
+project:
+  name: biocypher-workspace-eval
+  version: "0.1.0"
+  license: MIT
+  content_type: software
+
+ai_usage:
+  used: true
+  level: extensive
+  summary: >-
+    An AI coding agent (Claude Code) designed and wrote this repository on
+    2026-10-08/09 in a session directed by the maintainer: the testing guide,
+    the evaluation design document, the evaluation harness (runner, grader,
+    probe, mutants, metrics, prompts, configuration), the data preparation
+    and its tests. The agent verified facts about the MCP server, the
+    cookiecutter template and BioCypher by running them. The harness was
+    first written inside biocypher-components-registry and moved here at the
+    maintainer's request. Pending human review; not yet run against a real
+    model (only with a scripted fake model).
+
+  tools:
+    - name: Claude Code
+      vendor: Anthropic
+      type: agent
+      model: claude-opus-5-5
+      hosting: cloud_vendor
+      period: { start: "2026-10-08", end: "2026-10-09" }
+      purpose: [code generation, test writing, documentation, research]
+    - name: rseng-agent-skills
+      type: standalone
+      version: "0.2.0"
+      skills_consulted: [rseng-ai-declaration, rseng-citation-metadata]
+
+  activities: [code_generation, testing, documentation]
+
+  scope:
+    code_generation: true
+    code_review: false
+    documentation: true
+    testing: true
+    infrastructure: false
+
+  code_proportion:
+    ai_generated_percent: 100
+    ai_assisted_percent: 0
+    human_only_percent: 0
+    method: self_reported
+    estimation_notes: all files written by the agent; design decisions directed by the maintainer
+
+  generated_content:
+    documentation_percent: 100
+    artifacts:
+      - evaluation/runner.py
+      - evaluation/grader.py
+      - evaluation/metrics.py
+      - evaluation/mutants.py
+      - evaluation/prompts/
+      - docs/evaluating_models_workspace.md
+      - docs/testing_agentic_workspace.md
+
+  components:
+    - name: evaluation design and testing guide (docs/)
+      description: task ladder, prompts, grading and metrics design; manual test guide
+      ai_involvement: >-
+        Written by the agent from the maintainer's requests (test with Claude
+        and LiteLLM; quantitative comparison of open-weight models; dataset
+        doi:10.5281/zenodo.21455347 as foundation); toolchain facts verified
+        by the agent on 2026-10-09 (MCP server 1.13.1, template commit
+        01d32f1, BioCypher 0.17.0).
+      tools_used: [Claude Code]
+      notes: Not yet reviewed by a human.
+    - name: harness (evaluation/)
+      description: runner, grader, probe, mutants, metrics, configuration, prompts, pinned data
+      ai_involvement: >-
+        Agent-written. Grader validated against the synthetic-ppi-reference
+        repository and seven mutants; runner smoke-tested end to end with a
+        scripted fake model (real MCP session, seeding, grading).
+      tools_used: [Claude Code]
+      notes: Not yet reviewed by a human; not yet run against a real model.
+    - name: tests (tests/)
+      description: unit tests of grader, metrics, runner logic, configuration and mutants
+      ai_involvement: agent-written
+      tools_used: [Claude Code]
+      notes: Not yet reviewed by a human.
+
+declaration:
+  date: "2026-10-09"
+  declared_by: Inga Ulusoy
+  notes: >-
+    2026-10-09 initial declaration, drafted by the agent for the maintainer;
+    human review pending.

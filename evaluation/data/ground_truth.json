@@ -1,0 +1,335 @@
+{
+  "dataset_doi": "10.5281/zenodo.21455347",
+  "raw_rows": 23,
+  "nodes": [
+    {
+      "id": "P00533",
+      "genesymbol": "EGFR",
+      "ncbi_tax_id": 9606
+    },
+    {
+      "id": "P01106",
+      "genesymbol": "MYC",
+      "ncbi_tax_id": 9606
+    },
+    {
+      "id": "P04406",
+      "genesymbol": "GAPDH",
+      "ncbi_tax_id": 9606
+    },
+    {
+      "id": "P04637",
+      "genesymbol": "TP53",
+      "ncbi_tax_id": 9606
+    },
+    {
+      "id": "P07901",
+      "genesymbol": "HSP90AA1",
+      "ncbi_tax_id": 10090
+    },
+    {
+      "id": "P08228",
+      "genesymbol": "SOD1",
+      "ncbi_tax_id": 10090
+    },
+    {
+      "id": "P12023",
+      "genesymbol": "APP",
+      "ncbi_tax_id": 10090
+    },
+    {
+      "id": "P28482",
+      "genesymbol": "MAPK1",
+      "ncbi_tax_id": 9606
+    },
+    {
+      "id": "P31749",
+      "genesymbol": "AKT1",
+      "ncbi_tax_id": 9606
+    },
+    {
+      "id": "P38398",
+      "genesymbol": "BRCA1",
+      "ncbi_tax_id": 9606
+    },
+    {
+      "id": "P42345",
+      "genesymbol": "MTOR",
+      "ncbi_tax_id": 9606
+    },
+    {
+      "id": "P62744",
+      "genesymbol": "RHOA",
+      "ncbi_tax_id": 10090
+    },
+    {
+      "id": "P62832",
+      "genesymbol": "CDK1",
+      "ncbi_tax_id": 10116
+    },
+    {
+      "id": "Q63356",
+      "genesymbol": "NFKB1",
+      "ncbi_tax_id": 10116
+    },
+    {
+      "id": "Q9JHW1",
+      "genesymbol": "CREB1",
+      "ncbi_tax_id": 10116
+    }
+  ],
+  "edges": [
+    {
+      "id": "P08228_P00533_binding",
+      "source": "P08228",
+      "target": "P00533",
+      "type": "binding",
+      "is_directed": true,
+      "is_stimulation": false,
+      "is_inhibition": false,
+      "consensus_direction": true,
+      "consensus_stimulation": false,
+      "consensus_inhibition": false
+    },
+    {
+      "id": "P62832_P04637_activation",
+      "source": "P62832",
+      "target": "P04637",
+      "type": "activation",
+      "is_directed": true,
+      "is_stimulation": true,
+      "is_inhibition": false,
+      "consensus_direction": true,
+      "consensus_stimulation": true,
+      "consensus_inhibition": false
+    },
+    {
+      "id": "P01106_P04406_phosphorylation",
+      "source": "P01106",
+      "target": "P04406",
+      "type": "phosphorylation",
+      "is_directed": true,
+      "is_stimulation": true,
+      "is_inhibition": false,
+      "consensus_direction": true,
+      "consensus_stimulation": true,
+      "consensus_inhibition": false
+    },
+    {
+      "id": "P42345_Q63356_ubiquitination",
+      "source": "P42345",
+      "target": "Q63356",
+      "type": "ubiquitination",
+      "is_directed": true,
+      "is_stimulation": false,
+      "is_inhibition": true,
+      "consensus_direction": true,
+      "consensus_stimulation": false,
+      "consensus_inhibition": true
+    },
+    {
+      "id": "Q63356_P62832_activation",
+      "source": "Q63356",
+      "target": "P62832",
+      "type": "activation",
+      "is_directed": true,
+      "is_stimulation": true,
+      "is_inhibition": false,
+      "consensus_direction": true,
+      "consensus_stimulation": true,
+      "consensus_inhibition": false
+    },
+    {
+      "id": "P28482_P07901_ubiquitination",
+      "source": "P28482",
+      "target": "P07901",
+      "type": "ubiquitination",
+      "is_directed": true,
+      "is_stimulation": false,
+      "is_inhibition": true,
+      "consensus_direction": true,
+      "consensus_stimulation": false,
+      "consensus_inhibition": true
+    },
+    {
+      "id": "P04637_Q9JHW1_ubiquitination",
+      "source": "P04637",
+      "target": "Q9JHW1",
+      "type": "ubiquitination",
+      "is_directed": true,
+      "is_stimulation": false,
+      "is_inhibition": true,
+      "consensus_direction": true,
+      "consensus_stimulation": false,
+      "consensus_inhibition": true
+    },
+    {
+      "id": "P07901_P12023_activation",
+      "source": "P07901",
+      "target": "P12023",
+      "type": "activation",
+      "is_directed": true,
+      "is_stimulation": true,
+      "is_inhibition": false,
+      "consensus_direction": true,
+      "consensus_stimulation": true,
+      "consensus_inhibition": false
+    },
+    {
+      "id": "P07901_P62744_ubiquitination",
+      "source": "P07901",
+      "target": "P62744",
+      "type": "ubiquitination",
+      "is_directed": true,
+      "is_stimulation": false,
+      "is_inhibition": true,
+      "consensus_direction": true,
+      "consensus_stimulation": false,
+      "consensus_inhibition": true
+    },
+    {
+      "id": "P08228_P04637_inhibition",
+      "source": "P08228",
+      "target": "P04637",
+      "type": "inhibition",
+      "is_directed": true,
+      "is_stimulation": false,
+      "is_inhibition": true,
+      "consensus_direction": true,
+      "consensus_stimulation": false,
+      "consensus_inhibition": true
+    },
+    {
+      "id": "P31749_P07901_ubiquitination",
+      "source": "P31749",
+      "target": "P07901",
+      "type": "ubiquitination",
+      "is_directed": true,
+      "is_stimulation": false,
+      "is_inhibition": true,
+      "consensus_direction": true,
+      "consensus_stimulation": false,
+      "consensus_inhibition": true
+    },
+    {
+      "id": "P07901_P01106_ubiquitination",
+      "source": "P07901",
+      "target": "P01106",
+      "type": "ubiquitination",
+      "is_directed": true,
+      "is_stimulation": false,
+      "is_inhibition": true,
+      "consensus_direction": true,
+      "consensus_stimulation": false,
+      "consensus_inhibition": true
+    },
+    {
+      "id": "P28482_P38398_ubiquitination",
+      "source": "P28482",
+      "target": "P38398",
+      "type": "ubiquitination",
+      "is_directed": true,
+      "is_stimulation": false,
+      "is_inhibition": true,
+      "consensus_direction": true,
+      "consensus_stimulation": false,
+      "consensus_inhibition": true
+    },
+    {
+      "id": "Q63356_P62744_inhibition",
+      "source": "Q63356",
+      "target": "P62744",
+      "type": "inhibition",
+      "is_directed": true,
+      "is_stimulation": false,
+      "is_inhibition": true,
+      "consensus_direction": true,
+      "consensus_stimulation": false,
+      "consensus_inhibition": true
+    },
+    {
+      "id": "Q63356_P12023_phosphorylation",
+      "source": "Q63356",
+      "target": "P12023",
+      "type": "phosphorylation",
+      "is_directed": true,
+      "is_stimulation": true,
+      "is_inhibition": false,
+      "consensus_direction": true,
+      "consensus_stimulation": true,
+      "consensus_inhibition": false
+    },
+    {
+      "id": "P07901_P04406_binding",
+      "source": "P07901",
+      "target": "P04406",
+      "type": "binding",
+      "is_directed": true,
+      "is_stimulation": false,
+      "is_inhibition": false,
+      "consensus_direction": true,
+      "consensus_stimulation": false,
+      "consensus_inhibition": false
+    },
+    {
+      "id": "P04406_P04637_activation",
+      "source": "P04406",
+      "target": "P04637",
+      "type": "activation",
+      "is_directed": true,
+      "is_stimulation": true,
+      "is_inhibition": false,
+      "consensus_direction": true,
+      "consensus_stimulation": true,
+      "consensus_inhibition": false
+    },
+    {
+      "id": "P31749_P04637_phosphorylation",
+      "source": "P31749",
+      "target": "P04637",
+      "type": "phosphorylation",
+      "is_directed": true,
+      "is_stimulation": true,
+      "is_inhibition": false,
+      "consensus_direction": true,
+      "consensus_stimulation": true,
+      "consensus_inhibition": false
+    },
+    {
+      "id": "P04406_P12023_activation",
+      "source": "P04406",
+      "target": "P12023",
+      "type": "activation",
+      "is_directed": true,
+      "is_stimulation": true,
+      "is_inhibition": false,
+      "consensus_direction": true,
+      "consensus_stimulation": true,
+      "consensus_inhibition": false
+    },
+    {
+      "id": "P04637_P28482_activation",
+      "source": "P04637",
+      "target": "P28482",
+      "type": "activation",
+      "is_directed": true,
+      "is_stimulation": true,
+      "is_inhibition": false,
+      "consensus_direction": true,
+      "consensus_stimulation": true,
+      "consensus_inhibition": false
+    },
+    {
+      "id": "P00533_P08228_binding",
+      "source": "P00533",
+      "target": "P08228",
+      "type": "binding",
+      "is_directed": false,
+      "is_stimulation": true,
+      "is_inhibition": true,
+      "consensus_direction": false,
+      "consensus_stimulation": false,
+      "consensus_inhibition": true
+    }
+  ]
+}

@@ -1,0 +1,316 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "cr": "http://mlcommons.org/croissant/",
+    "rai": "http://mlcommons.org/croissant/RAI/",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "dct": "http://purl.org/dc/terms/",
+    "equivalentProperty": "cr:equivalentProperty",
+    "examples": {
+      "@id": "cr:examples",
+      "@type": "@json"
+    },
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileProperty": "cr:fileProperty",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "parentField": "cr:parentField",
+    "path": "cr:path",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "regex": "cr:regex",
+    "repeated": "cr:repeated",
+    "replace": "cr:replace",
+    "samplingRate": "cr:samplingRate",
+    "sc": "https://schema.org/",
+    "separator": "cr:separator",
+    "source": "cr:source",
+    "subField": "cr:subField",
+    "transform": "cr:transform"
+  },
+  "@type": "sc:Dataset",
+  "name": "Synthetic Protein Interaction Dataset",
+  "description": "Synthetic tab-separated protein-protein interaction data used by the BioCypher workshop tutorial knowledge graph. The dataset contains source and target protein identifiers, gene symbols, taxonomy identifiers, interaction type labels, and boolean interaction evidence flags. Matching field descriptions are complemented from the networks data dictionary.",
+  "conformsTo": "http://mlcommons.org/croissant/1.1",
+  "citeAs": "https://doi.org/10.5281/zenodo.16902349",
+  "creator": {
+    "@type": "sc:Person",
+    "name": "Edwin Carreno",
+    "url": "https://orcid.org/0009-0005-3359-2211"
+  },
+  "datePublished": "2025-08-05",
+  "keywords": [
+    "synthetic data",
+    "protein interactions",
+    "BioCypher",
+    "knowledge graph",
+    "TSV"
+  ],
+  
+  "url": "https://zenodo.org/records/16902349",
+  "version": "1.0.1",
+  "distribution": [
+    {
+      "@type": "cr:FileObject",
+      "@id": "file_0",
+      "name": "synthetic_protein_interactions.tsv",
+      "contentSize": "2012",
+      "contentUrl": "synthetic_protein_interactions.tsv",
+      "encodingFormat": "text/tab-separated-values",
+      "sha256": "d99e974689e07921292a3a1af86d9c470474ebe11f7f85d59ea71f859c5ed7e2"
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "@id": "synthetic_protein_interactions",
+      "name": "synthetic_protein_interactions",
+      "description": "Records from synthetic_protein_interactions.tsv (23 rows)",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/source",
+          "name": "source",
+          "description": "Primary reference identifier of the source molecular entity. The tutorial dataset uses UniProt-like protein identifiers.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "source"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/target",
+          "name": "target",
+          "description": "Primary reference identifier of the target molecular entity. The tutorial dataset uses UniProt-like protein identifiers.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "target"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/source_genesymbol",
+          "name": "source_genesymbol",
+          "description": "Human-readable gene symbol label for the source molecular entity.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "source_genesymbol"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/target_genesymbol",
+          "name": "target_genesymbol",
+          "description": "Human-readable gene symbol label for the target molecular entity.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "target_genesymbol"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/is_directed",
+          "name": "is_directed",
+          "description": "Boolean-like flag indicating whether the interaction has a causal direction. Encoded in the TSV as 0 or 1.",
+          "dataType": "sc:Boolean",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "is_directed"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/is_stimulation",
+          "name": "is_stimulation",
+          "description": "Boolean-like flag indicating whether the interaction is stimulatory, i.e. has a positive causal effect. Encoded in the TSV as 0 or 1.",
+          "dataType": "sc:Boolean",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "is_stimulation"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/is_inhibition",
+          "name": "is_inhibition",
+          "description": "Boolean-like flag indicating whether the interaction is inhibitory, i.e. has a negative causal effect. Encoded in the TSV as 0 or 1.",
+          "dataType": "sc:Boolean",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "is_inhibition"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/consensus_direction",
+          "name": "consensus_direction",
+          "description": "Majority-vote consensus for interaction directionality across supporting resources. Encoded in the TSV as 0 or 1.",
+          "dataType": "cr:Int64",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "consensus_direction"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/consensus_stimulation",
+          "name": "consensus_stimulation",
+          "description": "Majority-vote consensus for stimulatory interaction evidence across supporting resources. Encoded in the TSV as 0 or 1.",
+          "dataType": "cr:Int64",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "consensus_stimulation"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/consensus_inhibition",
+          "name": "consensus_inhibition",
+          "description": "Majority-vote consensus for inhibitory interaction evidence across supporting resources. Encoded in the TSV as 0 or 1.",
+          "dataType": "cr:Int64",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "consensus_inhibition"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/type",
+          "name": "type",
+          "description": "Tutorial interaction type label. Values in this synthetic TSV include activation, binding, inhibition, phosphorylation, and ubiquitination.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "type"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/ncbi_tax_id_source",
+          "name": "ncbi_tax_id_source",
+          "description": "NCBI taxonomy identifier of the source molecular entity.",
+          "dataType": "cr:Int64",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "ncbi_tax_id_source"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/entity_type_source",
+          "name": "entity_type_source",
+          "description": "Type of the source molecular entity. The tutorial dataset uses protein.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "entity_type_source"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/ncbi_tax_id_target",
+          "name": "ncbi_tax_id_target",
+          "description": "NCBI taxonomy identifier of the target molecular entity.",
+          "dataType": "cr:Int64",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "ncbi_tax_id_target"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "synthetic_protein_interactions/entity_type_target",
+          "name": "entity_type_target",
+          "description": "Type of the target molecular entity. The tutorial dataset uses protein.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "file_0"
+            },
+            "extract": {
+              "column": "entity_type_target"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

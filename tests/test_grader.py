@@ -242,3 +242,50 @@ def test_summarize_requires_ratios():
     assert grader.summarize("L3", checks) == {"passed": True, "partial_score": 1.0}
     checks["edge_recall"] = 0.5
     assert grader.summarize("L3", checks)["passed"] is False
+
+
+OLD_SCRIPT = 'data_source = "data/your_data.csv"'
+NEW_SCRIPT = 'data_source = "data/your_data"'
+FIXED_SCRIPT = 'data_source = "data/synthetic_protein_interactions.tsv"'
+
+
+def test_defects_seed_template():
+    checks = grader.check_defects(
+        'dependencies = ["biocypher>=0.17.0"]', OLD_SCRIPT, grader.SEED_TEMPLATE
+    )
+    assert checks["defect_pyarrow_fixed"] is False
+    assert checks["defect_data_path_fixed"] is False
+
+
+def test_defects_new_template_placeholder_not_fixed():
+    # 115fce0 ships biocypher[neo4j] and a placeholder without .csv
+    checks = grader.check_defects(
+        'dependencies = ["biocypher[neo4j]>=0.17.0"]', NEW_SCRIPT, "115fce0"
+    )
+    assert checks["defect_pyarrow_fixed"] is None
+    assert checks["defect_data_path_fixed"] is False
+    fixed = grader.check_defects("", FIXED_SCRIPT, "115fce0")
+    assert fixed["defect_data_path_fixed"] is True
+
+
+def test_defects_unknown_template_checks_all():
+    checks = grader.check_defects("pyarrow", FIXED_SCRIPT, None)
+    assert checks["scaffold_template"] is None
+    assert checks["defect_pyarrow_fixed"] is True
+    assert checks["defect_data_path_fixed"] is True
+
+
+def _level(name, seed):
+    return cfg.Level(name, "original", seed, 10, 10, "STATUS:")
+
+
+def test_scaffold_template_sources():
+    meta = {"template_head": "abc1234"}
+    pinned = [_call("run_command", command=f"{COOKIECUTTER} --checkout 115fce0")]
+    unpinned = [_call("run_command", command=COOKIECUTTER)]
+    assert grader.scaffold_template(_level("L4", True), meta, pinned) == (
+        grader.SEED_TEMPLATE
+    )
+    assert grader.scaffold_template(_level("L6", False), meta, pinned) == "115fce0"
+    assert grader.scaffold_template(_level("L6", False), meta, unpinned) == "abc1234"
+    assert grader.scaffold_template(_level("L6", False), {}, []) is None

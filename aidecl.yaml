@@ -67,8 +67,8 @@ ai_usage:
         Written by the agent from the maintainer's requests (test with Claude
         and LiteLLM; quantitative comparison of open-weight models; dataset
         doi:10.5281/zenodo.21455347 as foundation); toolchain facts verified
-        by the agent on 2026-10-09 (MCP server 1.13.1, template commit
-        01d32f1, BioCypher 0.17.0).
+        by the agent on 2026-10-09 (MCP server reporting 1.13.1, which is
+        the mcp SDK version; template commit 01d32f1, BioCypher 0.17.0).
       tools_used: [Claude Code]
       notes: Not yet reviewed by a human.
     - name: harness (evaluation/)

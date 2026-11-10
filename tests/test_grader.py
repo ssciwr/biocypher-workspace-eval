@@ -231,6 +231,17 @@ def test_protocol_order_and_layout(tmp_path):
     }
 
 
+def test_protocol_accepts_new_structure_tool(tmp_path):
+    events = [
+        _call("get_expected_project_structure", project_name="synthetic-ppi"),
+        _call("get_cookiecutter_instructions"),
+        _call("run_command", command=f"{COOKIECUTTER} --checkout 115fce0"),
+    ]
+    checks = grader.check_protocol(events, tmp_path, [], "synthetic-ppi", replies=0)
+    assert checks["protocol_order_ok"] is True
+    assert checks["no_manual_scaffold"] is True
+
+
 def test_protocol_violations(tmp_path):
     events = [
         _call("get_cookiecutter_instructions"),

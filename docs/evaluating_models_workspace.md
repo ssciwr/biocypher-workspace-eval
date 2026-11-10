@@ -74,7 +74,7 @@ L6 versus the sum of L2–L5 shows the cost of **long-horizon** work: models tha
 
 ### 3.2 Seeded reference state
 
-For L3–L5, the runner seeds the workspace with the **pristine scaffold**: the root commit of the [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference) repository, which is the unmodified output of the cookiecutter template (commit `01d32f1`) run exactly as the MCP instructions describe, with none of its defects fixed (3.4). It goes to `synthetic-ppi/`, the dataset to `synthetic-ppi/data/`. This decouples the levels: L3 measures implementation only.
+For L3–L5, the runner seeds the workspace with the **pristine scaffold**: the root commit of the [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference) repository, which is the unmodified output of the cookiecutter template (commit `01d32f1`) run exactly as the MCP instructions describe, with none of its defects fixed (3.4). It goes to `synthetic-ppi/`, the dataset to `synthetic-ppi/data/`. This decouples the levels: L3 measures implementation only. L2 and L6 scaffold with whatever template commit the MCP's command fetches, `115fce0` since 2026-11-06 (3.4).
 
 The **reference solution** (3.5) validates the grader (section 5).
 
@@ -83,33 +83,37 @@ The **reference solution** (3.5) validates the grader (section 5).
 Run these as separate conditions on L3/L4 only, after the base ladder:
 
 - **Truncation:** `MCP_RESULT_MAX_CHARS=2000`. Measures whether the model narrows tool arguments after a truncated result instead of repeating the call (the system prompt asks for that).
-- **Injected failure:** reference scaffold with one additional broken test. (The missing `pyarrow` dependency is already a natural injected failure in L4–L6, see 3.4.) Measures error recovery: does it read the traceback, fix the cause, re-run?
+- **Injected failure:** reference scaffold with one additional broken test. (The missing `pyarrow` dependency is already a natural injected failure in the `01d32f1` seed of L4–L5, see 3.4.) Measures error recovery: does it read the traceback, fix the cause, re-run?
 - **Change request:** a second scripted user turn after success (`Also drop all interactions of type binding, and add a node property organism: "Homo sapiens" for 9606, "Mus musculus" for 10090, "Rattus norvegicus" for 10116.`). Measures editing existing code instead of rewriting it, and multi-turn consistency.
 - **Metadata available:** L5 with `croissant.jsonld` placed next to the TSV versus without. Measures whether the model uses dataset metadata, and whether it is misled by the type and version inconsistencies noted in section 2.
 
-### 3.4 Verified toolchain facts (checked 2026-10-09)
+### 3.4 Verified toolchain facts (checked 2026-10-09, template updated 2026-11-10)
 
-These were checked by calling the MCP server directly, generating the scaffold with the exact command the MCP returns, and running the reference solution (3.5) through BioCypher. Re-check them when any version changes.
+These were checked by calling the MCP server directly, generating the scaffold with the exact command the MCP returns, and running the reference solution (3.5) through BioCypher. Re-check them when any version changes. On 2026-11-10 the MCP server was unchanged (1.13.1, 9 tools); the `115fce0` scaffold was generated with the MCP's values and inspected, but its tests and build were not run here (the template's own CI runs both).
 
 | Component | Version | Facts that affect the evaluation |
 |---|---|---|
-| BioCypher MCP (`mcp.biocypher.org/mcp`) | server `biocypher_mcp` 1.13.1 | 9 tools: `get_available_workflows`, `check_project_exists`, `get_cookiecutter_instructions`, `get_adapter_creation_workflow`, `get_phase_guidance`, `get_implementation_patterns`, `get_decision_guidance`, `get_schema_configuration_guidance`, `get_resource_management_guidance` |
+| BioCypher MCP (`mcp.biocypher.org/mcp`) | server `biocypher_mcp` 1.13.1 (unchanged on 2026-11-10) | 9 tools: `get_available_workflows`, `check_project_exists`, `get_cookiecutter_instructions`, `get_adapter_creation_workflow`, `get_phase_guidance`, `get_implementation_patterns`, `get_decision_guidance`, `get_schema_configuration_guidance`, `get_resource_management_guidance` |
 | `get_cookiecutter_instructions` | – | `template_url` = `https://github.com/biocypher/biocypher-cookiecutter-template` (L0 ground truth; accept a trailing `.git`, which the returned command template uses). The instructions tell the model to **ask the user for the project name and confirm the context** before running cookiecutter, which conflicts with unattended runs, so the L2/L6 prompts give the name and say not to ask. |
 | `check_project_exists` | – | Runs on the **MCP server** (returns `"project_path": "/app"`) and always returns the generic expected structure; it cannot see the workspace. Its result carries no information, so only the call order counts as a protocol check. |
-| Cookiecutter template | commit `01d32f1` (HEAD on 2026-10-09) | With `project_name=synthetic-ppi` and default derivations it creates `synthetic-ppi/` with `src/synthetic_ppi/adapters/synthetic_ppi_adapter.py` (class `SyntheticPpiAdapter(data_source, **kwargs)` returning dummy data), `config/schema_config.yaml` and `config/biocypher_config.yaml` (Neo4j, offline, Biolink 3.2.1 head ontology, `output_directory: biocypher-out`), `create_knowledge_graph.py`, `tests/test_synthetic_ppi_adapter.py`, `pyproject.toml` (`requires-python >= 3.13`, `biocypher>=0.17.0`), Docker files. |
+| Cookiecutter template | commit `01d32f1` (HEAD on 2026-10-09; the L3–L5 seed, 3.2) | With `project_name=synthetic-ppi` and default derivations it creates `synthetic-ppi/` with `src/synthetic_ppi/adapters/synthetic_ppi_adapter.py` (class `SyntheticPpiAdapter(data_source, **kwargs)` returning dummy data), `config/schema_config.yaml` and `config/biocypher_config.yaml` (Neo4j, offline, Biolink 3.2.1 head ontology, `output_directory: biocypher-out`), `create_knowledge_graph.py`, `tests/test_synthetic_ppi_adapter.py`, `pyproject.toml` (`requires-python >= 3.13`, `biocypher>=0.17.0`), Docker files. |
+| Cookiecutter template | commit `115fce0` (HEAD since 2026-11-06, template PRs #3 and #4; what L2 and L6 scaffold, because the live MCP command is unpinned) | Same layout plus `config/biocypher_config.docker.yaml` (online mode, `wipe: false`). `pyproject.toml` requires `biocypher[neo4j]>=0.17.0` (the post-generation hook inserts the latest PyPI release as the minimum), which brings in `pyarrow`. `biocypher_config.yaml` sets `file_format: parquet` explicitly and the current `csv_*` keys. `create_knowledge_graph.py` reads `BIOCYPHER_CONFIG_PATH`, writes the Neo4j import script and calls `summary()` only in offline mode. Docker files are removed when `include_docker=n`, tests when `include_tests=n`. The template repo has CI that generates projects and runs their tests and pipeline weekly. The grader takes the template commit from the `--checkout` in the model's cookiecutter command, else from `template_head` in `meta.json` (5). |
 | BioCypher | 0.17.0 | Neo4j offline output is **Parquet** by default: `biocypher-out/Protein-part000.parquet` and `biocypher-out/PairwiseMolecularInteraction-part000.parquet`. Biolink 3.2.1 contains both `protein` and `pairwise molecular interaction` (`is_a: pairwise gene to gene interaction`). |
 
-**Scaffold defects the model has to overcome** (part of what L4–L6 measure; record per run which ones the model fixed):
+**Scaffold defects the model has to overcome** (part of what L4–L6 measure; the grader records the informative `defect_*_fixed` checks only for defects the run's scaffold had, `None` otherwise):
 
-| Defect in the generated scaffold | Effect |
-|---|---|
-| `pyproject.toml` lacks `pyarrow` (BioCypher's `neo4j` extra) | `create_knowledge_graph.py` fails with `ModuleNotFoundError: No module named 'pyarrow'` until it is added |
-| `create_knowledge_graph.py` uses the placeholder `data_source = "data/your_data.csv"` | the graph build fails until it points to the dataset |
-| the example `get_edges()` docstring says `(source_id, target_id, edge_label, edge_type, properties)` and the example tuples follow that order | wrong for BioCypher, whose edge tuple is `(edge_id, source_id, target_id, label, properties)`; models that copy the example produce broken edges |
-| template tests check the dummy implementation (`get_metadata`, `validate_data_source`, CSV input) | all 7 pass on the **unimplemented** scaffold; 5 of them fail on a correct implementation. "pytest passes" alone therefore rewards doing nothing, and a correct solution requires rewriting the tests |
-| `schema_config.yaml` contains example `protein`/`gene` types with unrelated properties | must be replaced, not extended |
-| `.gitignore` excludes `data/` | a model that commits its project silently leaves the dataset out |
-| the post-generation hook runs `git init` and commits the scaffold under the user's git identity | in the workspace this happens with whatever git identity the sandbox has |
+| Defect in the generated scaffold | `01d32f1` | `115fce0` | Effect |
+|---|---|---|---|
+| `pyproject.toml` lacks `pyarrow` (BioCypher's `neo4j` extra) | yes | fixed (`biocypher[neo4j]`) | `create_knowledge_graph.py` fails with `ModuleNotFoundError: No module named 'pyarrow'` until it is added |
+| `create_knowledge_graph.py` uses a placeholder data source | `data/your_data.csv` | `data/your_data` | the graph build fails (or the adapter ignores the data) until it points to the dataset |
+| the example `get_edges()` docstring and tuples use `(source_id, target_id, edge_label, edge_type, properties)` | yes | fixed | wrong for BioCypher, whose edge tuple is `(edge_id, source_id, target_id, label, properties)`; models that copy the example produce broken edges |
+| template tests check the dummy implementation | 7 tests (`get_metadata`, `validate_data_source`, CSV input); all pass on the **unimplemented** scaffold, 5 fail on a correct implementation | 9 tests, adds a dummy-data warning test and `test_edge_endpoints_match_schema_node_types` (source `protein`, target `gene`); by reading them, 7 fail on the reference adapter (only the two constructor tests pass) | "pytest passes" alone rewards doing nothing, and a correct solution requires rewriting the tests |
+| the adapter logs that it yields dummy data | no | yes | the warning (and its test) must be removed with the implementation |
+| `schema_config.yaml` contains example `protein`/`gene` types with unrelated properties | yes | yes (`protein`, `gene`, `protein_encoded_by_gene`) | must be replaced, not extended |
+| `.gitignore` excludes `data/` | yes | yes | a model that commits its project silently leaves the dataset out |
+| the post-generation hook runs `git init` and commits the scaffold under the user's git identity | yes | yes | in the workspace this happens with whatever git identity the sandbox has |
+
+As long as L3–L5 are seeded with `01d32f1` and L2/L6 scaffold `115fce0`, L6 is not "L2 + L5" on the same scaffold: L6 models do not meet the `pyarrow` and tuple-order defects. Compare L6 with L4/L5 with this in mind, or move the seed to `115fce0` (planned, see `mcp-issues.md` section 3).
 
 **BioCypher masks adapter errors in the graph output.** A deliberately naive adapter (no normalization, no deduplication, flags as `int`) yields 46 node and 23 edge tuples, yet the Parquet output still has exactly 15 nodes and 21 edges: BioCypher deduplicates by ID and keeps the first occurrence (`GAPDH` wins over `gapdh` only by row order), and it writes the flags as `int64` although the schema declares `bool`. The graph output counts therefore cannot detect data-handling errors; the data-quality checks must be run on the **adapter's tuples** (grader step 2), and the output check must include column types.
 
@@ -166,7 +170,7 @@ Validate the grader before the first model run (`uv run python -m evaluation.gra
 
 Log every run as JSONL of the workspace events (`turn_started`, `usage`, `tool_call`, `tool_result`, `text_delta`, `turn_done`/`turn_error`) plus run metadata. All metrics below are computed from these logs plus the grader output, so they can be recomputed later without re-running models.
 
-Run metadata: model alias and underlying model, BioCypher version in the adapter environment, quantization, serving stack and version (vLLM/llama.cpp/Ollama, tool-call parser), context window setting, temperature, LiteLLM version, MCP server URL and version, cookiecutter template version, prompt file hash, dataset hash, repository commit, `CLAUDE_MAX_TOKENS`, `MCP_RESULT_MAX_CHARS`, budgets, start time, repetition index.
+Run metadata: model alias and underlying model, template commit (`template_head` in `meta.json` for levels that scaffold, `scaffold_template` in `grade.json`), BioCypher version in the adapter environment (`biocypher_version` in `grade.json`, L4+), quantization, serving stack and version (vLLM/llama.cpp/Ollama, tool-call parser), context window setting, temperature, LiteLLM version, MCP server URL and version, cookiecutter template version, prompt file hash, dataset hash, repository commit, `CLAUDE_MAX_TOKENS`, `MCP_RESULT_MAX_CHARS`, budgets, start time, repetition index.
 
 ### Outcome
 
@@ -232,7 +236,7 @@ Per model × level:
 ## 8. Limits of this evaluation
 
 - One small task in one domain (protein–protein interactions, 23 rows). It shows orchestration limits, not general capability; results do not transfer automatically to large or messy real datasets.
-- The remote MCP server and the cookiecutter template can change between runs; pin or record their versions.
+- The remote MCP server and the cookiecutter template can change between runs; pin or record their versions. The runner records the MCP server version and the template HEAD; the live MCP does not pin the template yet.
 - Serving configuration (quantization, tool-call parser, context length) can change outcomes as much as the model choice. Report it with every result and compare models under the same serving stack where possible.
 - The fixed interfaces in the prompts make grading possible but also make the task easier than an open-ended request; L6 is the closest to real use.
 

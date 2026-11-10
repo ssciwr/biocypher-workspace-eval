@@ -4,11 +4,15 @@
 
 [pins]
 mcp_url = "https://mcp.biocypher.org/mcp"
-# Reference repo: its root commit is the pristine scaffold seeded for L3-L5,
-# reference_commit the reference solution. Cloned into .cache/ on first use;
-# EVAL_REFERENCE_REPO overrides it with a local checkout (used as is).
+# Reference repo: seed_commit is the pristine scaffold seeded for L3-L5
+# (generated from template commit seed_template; without seed_commit the
+# root commit is used), reference_commit the reference solution. Cloned into
+# .cache/ on first use; EVAL_REFERENCE_REPO overrides it with a local
+# checkout (used as is).
 reference_repo = "https://github.com/ssciwr/synthetic-ppi-reference"
 reference_commit = "7556ca6f4d120a4176e1439a917b4bdf59873276"
+seed_commit = "743d290af651a38f15cc06831a062c34b86fc83c"
+seed_template = "01d32f162a88de433edfbe3cda3a4b7896145047"
 # Registry providing the workspace backend under test (not installable;
 # imported from the clone in .cache/ at registry_commit, branch litellm).
 # EVAL_REGISTRY_REPO overrides it with a local checkout (used as is). Its
@@ -32,7 +36,7 @@ max_tokens = 16000
 grade_timeout_seconds = 900
 
 # Levels: dataset = none | clean | original; seed_scaffold copies the
-# reference repo's root commit to <project_dir>/ and puts the dataset into
+# reference repo's seed_commit to <project_dir>/ and puts the dataset into
 # <project_dir>/data/, otherwise the dataset goes to data/.
 [levels.L0]
 dataset = "none"

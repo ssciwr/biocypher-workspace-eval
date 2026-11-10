@@ -44,6 +44,16 @@ FLAGS = (
 NODE_PROP_TYPES = {"genesymbol": "str", "ncbi_tax_id": "int"}
 EDGE_LABEL = "protein_protein_interaction"
 EXPECTED_TEMPLATE = "https://github.com/biocypher/biocypher-cookiecutter-template"
+# Default template commit of the pristine scaffold seeded into L3-L5, for
+# configurations without pins.seed_template.
+SEED_TEMPLATE = "01d32f162a88de433edfbe3cda3a4b7896145047"
+# Informative defect checks that apply per template commit. A defect the
+# scaffold does not have is reported as None, not as fixed. Unknown commits
+# get every check.
+TEMPLATE_DEFECTS = {
+    SEED_TEMPLATE: ("pyarrow", "data_path"),
+    "115fce0837b0d81b96e58a5af9dca179b1174ec8": ("data_path",),
+}
 OUTPUT_FILES = {
     "Protein-part000.parquet": 15,
     "PairwiseMolecularInteraction-part000.parquet": 21,
@@ -438,8 +448,10 @@ def grade_build(
     home: Path,
     timeout: int,
     reference_src: str | None,
+    template: str | None = None,
 ) -> dict:
     checks = check_schema(project / "config" / "schema_config.yaml")
+    checks["biocypher_version"] = installed_biocypher(project, home, timeout)
     shutil.rmtree(project / "biocypher-out", ignore_errors=True)
     build = _run(
         _uv(project, "python", "create_knowledge_graph.py"), project, home, timeout
@@ -494,13 +506,72 @@ def grade_build(
         if (project / "create_knowledge_graph.py").exists()
         else ""
     )
-    checks["defect_pyarrow_fixed"] = (
-        "pyarrow" in pyproject or "biocypher[neo4j]" in pyproject
-    )
-    checks["defect_data_path_fixed"] = "your_data.csv" not in build_script
+    checks.update(check_defects(pyproject, build_script, template))
     if reference_src is not None and checks["pytest_passed"]:
         checks["test_strength"] = test_strength(project, home, timeout, reference_src)
     return checks
+
+
+def check_defects(pyproject: str, build_script: str, template: str | None) -> dict:
+    """Informative: did the model fix the defects its scaffold had (None = not in it)."""
+    fixed = {
+        # 01d32f1 lists plain `biocypher`; the neo4j extra brings pyarrow.
+        "pyarrow": "pyarrow" in pyproject or "biocypher[neo4j]" in pyproject,
+        # Placeholder: data/your_data.csv (01d32f1), data/your_data (115fce0).
+        "data_path": "your_data" not in build_script,
+    }
+    known = [
+        k
+        for k in TEMPLATE_DEFECTS
+        if template and len(template) >= 7 and k.startswith(template)
+    ]
+    present = TEMPLATE_DEFECTS[known[0]] if len(known) == 1 else tuple(fixed)
+    return {
+        "scaffold_template": template,
+        **{
+            f"defect_{name}_fixed": ok if name in present else None
+            for name, ok in fixed.items()
+        },
+    }
+
+
+def installed_biocypher(project: Path, home: Path, timeout: int) -> str | None:
+    """BioCypher version in the project's environment (the template only sets a minimum)."""
+    proc = _run(
+        _uv(
+            project,
+            "python",
+            "-c",
+            "import importlib.metadata as m; print(m.version('biocypher'))",
+        ),
+        project,
+        home,
+        timeout,
+    )
+    lines = proc.stdout.split()
+    return lines[-1] if proc.returncode == 0 and lines else None
+
+
+def scaffold_template(
+    level: cfg.Level, meta: dict, events: list[dict], seed_template: str = SEED_TEMPLATE
+) -> str | None:
+    """Template commit the project was scaffolded from.
+
+    Seeded levels use the reference scaffold. Otherwise the --checkout of the
+    model's cookiecutter command (once the MCP pins the template), else the
+    template HEAD the runner recorded at the start of the run.
+    """
+    if level.seed_scaffold:
+        return seed_template
+    for call in ev.tool_calls(events):
+        if ev.is_cookiecutter_run(call):
+            match = re.search(
+                r"--checkout[=\s]+['\"]?([\w.\-/]+)", call.args["command"]
+            )
+            if match:
+                return match.group(1)
+            break
+    return meta.get("template_head")
 
 
 def test_strength(project: Path, home: Path, timeout: int, reference_src: str) -> float:
@@ -535,11 +606,15 @@ def test_strength(project: Path, home: Path, timeout: int, reference_src: str) -
     return killed / len(MUTANTS)
 
 
-def expected_layout(reference: Path) -> list[str]:
-    """Files of the pristine scaffold (reference repo root commit)."""
-    root = _root_commit(reference)
+def seed_commit(config: dict, reference: Path) -> str:
+    """Reference repo commit holding the pristine scaffold (pins.seed_commit, else the root commit)."""
+    return config["pins"].get("seed_commit") or _root_commit(reference)
+
+
+def expected_layout(reference: Path, seed: str) -> list[str]:
+    """Files of the pristine scaffold (the seed commit of the reference repo)."""
     out = subprocess.run(
-        ["git", "-C", str(reference), "ls-tree", "-r", "--name-only", root],
+        ["git", "-C", str(reference), "ls-tree", "-r", "--name-only", seed],
         capture_output=True,
         text=True,
         check=True,
@@ -613,7 +688,7 @@ def grade(run_dir: Path) -> dict:
                 check_protocol(
                     events,
                     workspace,
-                    expected_layout(reference),
+                    expected_layout(reference, seed_commit(config, reference)),
                     project_dir,
                     meta.get("replies", 0),
                 )
@@ -629,7 +704,17 @@ def grade(run_dir: Path) -> dict:
         if level.name in ("L4", "L5", "L6"):
             checks.update(
                 grade_build(
-                    project, events, home, timeout, reference_adapter_source(reference)
+                    project,
+                    events,
+                    home,
+                    timeout,
+                    reference_adapter_source(reference),
+                    scaffold_template(
+                        level,
+                        meta,
+                        events,
+                        config["pins"].get("seed_template", SEED_TEMPLATE),
+                    ),
                 )
             )
     result = {"level": level.name, "checks": checks, **summarize(level.name, checks)}

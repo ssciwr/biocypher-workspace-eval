@@ -34,7 +34,7 @@ from mcp.client.streamable_http import create_mcp_http_client, streamable_http_c
 from evaluation import backend
 from evaluation import config as cfg
 from evaluation import events as ev
-from evaluation.grader import _root_commit, grade
+from evaluation.grader import EXPECTED_TEMPLATE, grade, seed_commit
 
 cl, svc = backend.load()
 
@@ -51,6 +51,25 @@ def git_state(repo: Path) -> dict:
         "commit": git("rev-parse", "HEAD"),
         "dirty": bool(git("status", "--porcelain")),
     }
+
+
+def template_head(url: str = EXPECTED_TEMPLATE) -> str | None:
+    """Commit of the template's default branch; None if unreachable.
+
+    An unpinned cookiecutter command scaffolds this commit, so it is recorded
+    for levels that scaffold (the grader prefers a --checkout in the command).
+    """
+    try:
+        out = subprocess.run(
+            ["git", "ls-remote", url, "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True,
+        ).stdout
+    except (subprocess.SubprocessError, OSError):
+        return None
+    return out.split()[0] if out.strip() else None
 
 
 async def mcp_server_version(url: str) -> str:
@@ -96,7 +115,7 @@ def prepare_workspace(
         project = workspace / config["pins"]["project_dir"]
         project.mkdir()
         archive = subprocess.run(
-            ["git", "-C", str(reference), "archive", _root_commit(reference)],
+            ["git", "-C", str(reference), "archive", seed_commit(config, reference)],
             capture_output=True,
             check=True,
         ).stdout
@@ -208,6 +227,7 @@ async def run_one(
     session = await manager.create(owner_github_user_id="evaluation")
     try:
         packages = prepare_workspace(session.workspace, level, config, reference)
+        template = None if level.seed_scaffold else template_head()
         session.set_key(key, None)
         prompt = level.prompt_file.read_text()
         # Opened off the event loop; the per-event writes are small.
@@ -252,6 +272,8 @@ async def run_one(
         "registry": context["registry"],
         "evaluation_repo": context["evaluation"],
         "reference_repo": context["reference_state"],
+        "seed_commit": seed_commit(config, reference) if level.seed_scaffold else None,
+        "template_head": template,
         "workspace_env": packages,
     }
     (run_dir / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")

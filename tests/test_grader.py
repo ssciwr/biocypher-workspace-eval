@@ -2,6 +2,8 @@
 
 import copy
 import json
+import os
+import subprocess
 
 import pytest
 
@@ -9,6 +11,12 @@ from evaluation import config as cfg
 from evaluation import events as ev
 from evaluation import grader
 
+GIT_ID = {
+    "GIT_AUTHOR_NAME": "test",
+    "GIT_AUTHOR_EMAIL": "test@example.invalid",
+    "GIT_COMMITTER_NAME": "test",
+    "GIT_COMMITTER_EMAIL": "test@example.invalid",
+}
 TRUTH = json.loads((cfg.DATA_DIR / "ground_truth.json").read_text())
 
 
@@ -242,3 +250,78 @@ def test_summarize_requires_ratios():
     assert grader.summarize("L3", checks) == {"passed": True, "partial_score": 1.0}
     checks["edge_recall"] = 0.5
     assert grader.summarize("L3", checks)["passed"] is False
+
+
+OLD_SCRIPT = 'data_source = "data/your_data.csv"'
+NEW_SCRIPT = 'data_source = "data/your_data"'
+FIXED_SCRIPT = 'data_source = "data/synthetic_protein_interactions.tsv"'
+
+
+def test_defects_seed_template():
+    checks = grader.check_defects(
+        'dependencies = ["biocypher>=0.17.0"]', OLD_SCRIPT, grader.SEED_TEMPLATE
+    )
+    assert checks["defect_pyarrow_fixed"] is False
+    assert checks["defect_data_path_fixed"] is False
+
+
+def test_defects_new_template_placeholder_not_fixed():
+    # 115fce0 ships biocypher[neo4j] and a placeholder without .csv
+    checks = grader.check_defects(
+        'dependencies = ["biocypher[neo4j]>=0.17.0"]', NEW_SCRIPT, "115fce0"
+    )
+    assert checks["defect_pyarrow_fixed"] is None
+    assert checks["defect_data_path_fixed"] is False
+    fixed = grader.check_defects("", FIXED_SCRIPT, "115fce0")
+    assert fixed["defect_data_path_fixed"] is True
+
+
+def test_defects_unknown_template_checks_all():
+    checks = grader.check_defects("pyarrow", FIXED_SCRIPT, None)
+    assert checks["scaffold_template"] is None
+    assert checks["defect_pyarrow_fixed"] is True
+    assert checks["defect_data_path_fixed"] is True
+
+
+def _level(name, seed):
+    return cfg.Level(name, "original", seed, 10, 10, "STATUS:")
+
+
+def test_scaffold_template_sources():
+    meta = {"template_head": "abc1234"}
+    pinned = [_call("run_command", command=f"{COOKIECUTTER} --checkout 115fce0")]
+    unpinned = [_call("run_command", command=COOKIECUTTER)]
+    assert grader.scaffold_template(_level("L4", True), meta, pinned) == (
+        grader.SEED_TEMPLATE
+    )
+    assert grader.scaffold_template(_level("L6", False), meta, pinned) == "115fce0"
+    assert grader.scaffold_template(_level("L6", False), meta, unpinned) == "abc1234"
+    assert grader.scaffold_template(_level("L6", False), {}, []) is None
+
+
+def test_scaffold_template_uses_configured_seed():
+    level = _level("L3", True)
+    assert grader.scaffold_template(level, {}, [], "115fce0") == "115fce0"
+
+
+def test_seed_commit_pin_and_root_fallback(tmp_path):
+    def git(*args):
+        return subprocess.run(
+            ["git", "-C", str(tmp_path), *args],
+            capture_output=True,
+            text=True,
+            check=True,
+            env={**os.environ, **GIT_ID},
+        ).stdout.strip()
+
+    git("init", "-q")
+    for name in ("seed", "solution"):
+        (tmp_path / f"{name}.txt").write_text(name)
+        git("add", ".")
+        git("commit", "-qm", name)
+    root = git("rev-list", "--max-parents=0", "HEAD")
+    head = git("rev-parse", "HEAD")
+    assert grader.seed_commit({"pins": {}}, tmp_path) == root
+    assert grader.seed_commit({"pins": {"seed_commit": head}}, tmp_path) == head
+    assert grader.expected_layout(tmp_path, root) == ["seed.txt"]
+    assert grader.expected_layout(tmp_path, head) == ["seed.txt", "solution.txt"]

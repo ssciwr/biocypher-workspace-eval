@@ -34,7 +34,7 @@ from mcp.client.streamable_http import create_mcp_http_client, streamable_http_c
 from evaluation import backend
 from evaluation import config as cfg
 from evaluation import events as ev
-from evaluation.grader import EXPECTED_TEMPLATE, _root_commit, grade
+from evaluation.grader import EXPECTED_TEMPLATE, grade, seed_commit
 
 cl, svc = backend.load()
 
@@ -115,7 +115,7 @@ def prepare_workspace(
         project = workspace / config["pins"]["project_dir"]
         project.mkdir()
         archive = subprocess.run(
-            ["git", "-C", str(reference), "archive", _root_commit(reference)],
+            ["git", "-C", str(reference), "archive", seed_commit(config, reference)],
             capture_output=True,
             check=True,
         ).stdout
@@ -272,6 +272,7 @@ async def run_one(
         "registry": context["registry"],
         "evaluation_repo": context["evaluation"],
         "reference_repo": context["reference_state"],
+        "seed_commit": seed_commit(config, reference) if level.seed_scaffold else None,
         "template_head": template,
         "workspace_env": packages,
     }

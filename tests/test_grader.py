@@ -2,6 +2,8 @@
 
 import copy
 import json
+import os
+import subprocess
 
 import pytest
 
@@ -9,6 +11,12 @@ from evaluation import config as cfg
 from evaluation import events as ev
 from evaluation import grader
 
+GIT_ID = {
+    "GIT_AUTHOR_NAME": "test",
+    "GIT_AUTHOR_EMAIL": "test@example.invalid",
+    "GIT_COMMITTER_NAME": "test",
+    "GIT_COMMITTER_EMAIL": "test@example.invalid",
+}
 TRUTH = json.loads((cfg.DATA_DIR / "ground_truth.json").read_text())
 
 
@@ -289,3 +297,31 @@ def test_scaffold_template_sources():
     assert grader.scaffold_template(_level("L6", False), meta, pinned) == "115fce0"
     assert grader.scaffold_template(_level("L6", False), meta, unpinned) == "abc1234"
     assert grader.scaffold_template(_level("L6", False), {}, []) is None
+
+
+def test_scaffold_template_uses_configured_seed():
+    level = _level("L3", True)
+    assert grader.scaffold_template(level, {}, [], "115fce0") == "115fce0"
+
+
+def test_seed_commit_pin_and_root_fallback(tmp_path):
+    def git(*args):
+        return subprocess.run(
+            ["git", "-C", str(tmp_path), *args],
+            capture_output=True,
+            text=True,
+            check=True,
+            env={**os.environ, **GIT_ID},
+        ).stdout.strip()
+
+    git("init", "-q")
+    for name in ("seed", "solution"):
+        (tmp_path / f"{name}.txt").write_text(name)
+        git("add", ".")
+        git("commit", "-qm", name)
+    root = git("rev-list", "--max-parents=0", "HEAD")
+    head = git("rev-parse", "HEAD")
+    assert grader.seed_commit({"pins": {}}, tmp_path) == root
+    assert grader.seed_commit({"pins": {"seed_commit": head}}, tmp_path) == head
+    assert grader.expected_layout(tmp_path, root) == ["seed.txt"]
+    assert grader.expected_layout(tmp_path, head) == ["seed.txt", "solution.txt"]

@@ -16,7 +16,7 @@ The evaluation uses two other repositories (pinned in `evaluation/config.toml`, 
 | Repository | Role | Override |
 |---|---|---|
 | [biocypher-components-registry](https://github.com/ssciwr/biocypher-components-registry) | the backend under test, cloned into `.cache/` at the pinned `registry_commit` on first use: the runner imports its workspace modules (`src/core/workspace/`) from the clone | `EVAL_REGISTRY_REPO` (local checkout, used as is) |
-| [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference) | reference solution, cloned into `.cache/` at the pinned `reference_commit` on first use: its root commit is the pristine cookiecutter scaffold seeded into L3–L5 workspaces, the pinned commit the reference adapter from which the grader's mutants are derived | `EVAL_REFERENCE_REPO` (local checkout, used as is) |
+| [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference) | reference solution, cloned into `.cache/` at the pinned `reference_commit` on first use: `seed_commit` is the pristine cookiecutter scaffold seeded into L3–L5 workspaces (generated from template commit `seed_template`), `reference_commit` the reference adapter from which the grader's mutants are derived | `EVAL_REFERENCE_REPO` (local checkout, used as is) |
 
 The git commits of both (and of this repository) are recorded in every run's `meta.json`.
 
@@ -62,7 +62,7 @@ Each run directory `evaluation/runs/<model>/<level>/repNN/` contains `meta.json`
 
 1. A `SessionManager` session of the registry backend is created in-process (no HTTP, no GitHub auth) with a real MCP connection.
 2. The workspace gets its own Python 3.13 venv with the `workspace_env` packages; `run_command` uses it (the user-selected environment in real use).
-3. Seeding: L3–L5 get the scaffold from the root commit of [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference) in `synthetic-ppi/` with the dataset in `synthetic-ppi/data/`; L1, L2, L6 get the dataset in `data/`.
+3. Seeding: L3–L5 get the scaffold from the pinned `seed_commit` of [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference) in `synthetic-ppi/` with the dataset in `synthetic-ppi/data/`; L1, L2, L6 get the dataset in `data/`.
 4. The level prompt is sent. The runner stops the turn when the call budget (LLM calls) or time budget is used up. If a turn ends without the expected final line, the scripted reply from `config.toml` is sent, at most `max_replies` times; each counts as an intervention.
 5. The workspace is copied into the run directory and graded.
 

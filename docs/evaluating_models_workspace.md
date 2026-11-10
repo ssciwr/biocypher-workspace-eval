@@ -74,7 +74,7 @@ L6 versus the sum of L2–L5 shows the cost of **long-horizon** work: models tha
 
 ### 3.2 Seeded reference state
 
-For L3–L5, the runner seeds the workspace with the **pristine scaffold**: the root commit of the [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference) repository, which is the unmodified output of the cookiecutter template (commit `01d32f1`) run exactly as the MCP instructions describe, with none of its defects fixed (3.4). It goes to `synthetic-ppi/`, the dataset to `synthetic-ppi/data/`. This decouples the levels: L3 measures implementation only. L2 and L6 scaffold with whatever template commit the MCP's command fetches, `115fce0` since 2026-11-06 (3.4).
+For L3–L5, the runner seeds the workspace with the **pristine scaffold**: the commit pinned as `seed_commit` (by default the root commit) of the [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference) repository, which is the unmodified output of the cookiecutter template (commit `01d32f1`) run exactly as the MCP instructions describe, with none of its defects fixed (3.4). It goes to `synthetic-ppi/`, the dataset to `synthetic-ppi/data/`. This decouples the levels: L3 measures implementation only. L2 and L6 scaffold with whatever template commit the MCP's command fetches, `115fce0` since 2026-11-06 (3.4).
 
 The **reference solution** (3.5) validates the grader (section 5).
 
@@ -121,7 +121,7 @@ The adapter environment needs Python ≥ 3.13 (template requirement). The worksp
 
 ### 3.5 Reference solution
 
-The repository [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference) holds the verified reference: `git diff <root commit>` is the complete solution (adapter, schema, tests, `pyarrow` dependency, data path, un-ignored `data/`). Verified with Python 3.13.12, BioCypher 0.17.0 and pyarrow 26.0.0: 11 tests pass, the graph build writes 15 `Protein` and 21 `PairwiseMolecularInteraction` records with `bool` flag columns, and its tests catch all grader mutants.
+The repository [synthetic-ppi-reference](https://github.com/ssciwr/synthetic-ppi-reference) holds the verified reference: `git diff <seed commit>` is the complete solution (adapter, schema, tests, data path, un-ignored `data/`, and on `01d32f1` the `pyarrow` dependency). The `main` branch builds on template `01d32f1`, the `template-115fce0` branch on `115fce0`; on the latter, 11 tests pass and the graph build writes both Parquet files (BioCypher 0.17.0, checked 2026-11-10). Verified with Python 3.13.12, BioCypher 0.17.0 and pyarrow 26.0.0: 11 tests pass, the graph build writes 15 `Protein` and 21 `PairwiseMolecularInteraction` records with `bool` flag columns, and its tests catch all grader mutants.
 
 ## 4. Prompts
 

@@ -44,6 +44,7 @@ FLAGS = (
 NODE_PROP_TYPES = {"genesymbol": "str", "ncbi_tax_id": "int"}
 EDGE_LABEL = "protein_protein_interaction"
 EXPECTED_TEMPLATE = "https://github.com/biocypher/biocypher-cookiecutter-template"
+PROJECT_STRUCTURE_TOOLS = ("get_expected_project_structure", "check_project_exists")
 # Default template commit of the pristine scaffold seeded into L3-L5, for
 # configurations without pins.seed_template.
 SEED_TEMPLATE = "01d32f162a88de433edfbe3cda3a4b7896145047"
@@ -374,7 +375,9 @@ def check_protocol(
     def first(pred) -> int | None:
         return next((c.index for c in calls if pred(c)), None)
 
-    exists = first(lambda c: c.name == "check_project_exists")
+    # get_expected_project_structure replaced check_project_exists (kept as
+    # a deprecated alias), and system prompts may name either.
+    exists = first(lambda c: c.name in PROJECT_STRUCTURE_TOOLS)
     instructions = first(lambda c: c.name == "get_cookiecutter_instructions")
     scaffold = first(ev.is_cookiecutter_run)
     order_ok = (

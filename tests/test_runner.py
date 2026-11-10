@@ -109,3 +109,18 @@ def test_provider_error_classified():
         ]
     )
     assert drive(session)["termination"] == "provider_error"
+
+
+def test_tool_fingerprint_is_order_independent_and_content_sensitive():
+    tools = [
+        {"name": "b", "description": "B", "inputSchema": {"type": "object"}},
+        {"name": "a", "description": "A", "inputSchema": {"type": "object"}},
+    ]
+    first = runner.tool_fingerprint("srv 1", tools)
+    assert first["tools"] == ["a", "b"]
+    assert runner.tool_fingerprint("srv 1", tools[::-1]) == first
+    changed = [{**tools[0], "description": "B, reworded"}, tools[1]]
+    assert (
+        runner.tool_fingerprint("srv 1", changed)["tools_sha256"]
+        != (first["tools_sha256"])
+    )

@@ -14,11 +14,11 @@ reference_commit = "7556ca6f4d120a4176e1439a917b4bdf59873276"
 seed_commit = "743d290af651a38f15cc06831a062c34b86fc83c"
 seed_template = "01d32f162a88de433edfbe3cda3a4b7896145047"
 # Registry providing the workspace backend under test (not installable;
-# imported from the clone in .cache/ at registry_commit, branch litellm).
+# imported from the clone in .cache/ at registry_commit, a commit on main).
 # EVAL_REGISTRY_REPO overrides it with a local checkout (used as is). Its
 # commit is recorded per run.
 registry_repo = "https://github.com/ssciwr/biocypher-components-registry"
-registry_commit = "1e885da182a3e363a716f8c39ef9094e85b163a0"
+registry_commit = "b7d4647cf07465576198787bb3e0b0dce1c8dd5f"
 project_dir = "synthetic-ppi"
 python = "3.13"
 

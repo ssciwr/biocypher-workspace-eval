@@ -19,6 +19,7 @@ evaluation/config.toml (api_key_env).
 
 import argparse
 import asyncio
+import hashlib
 import json
 import os
 import shutil
@@ -72,14 +73,39 @@ def template_head(url: str = EXPECTED_TEMPLATE) -> str | None:
     return out.split()[0] if out.strip() else None
 
 
-async def mcp_server_version(url: str) -> str:
+async def mcp_server_info(url: str) -> dict:
+    """Name, reported version and tool fingerprint of the MCP server.
+
+    The reported version comes from the server framework (the BioCypher MCP
+    reports its ``mcp`` SDK version), so it does not change when the
+    server's code does. The sorted tool names and a hash of the full tool
+    list (names, descriptions, input schemas) identify what models saw.
+    """
     async with (
         create_mcp_http_client(headers={}) as http_client,
         streamable_http_client(url, http_client=http_client) as (read, write),
         ClientSession(read, write) as session,
     ):
         info = (await session.initialize()).server_info
-        return f"{info.name} {info.version}"
+        tools = (await session.list_tools()).tools
+    return tool_fingerprint(
+        f"{info.name} {info.version}",
+        [t.model_dump(mode="json", exclude_none=True) for t in tools],
+    )
+
+
+def tool_fingerprint(server: str, tools: list[dict]) -> dict:
+    listing = sorted(
+        ({k: t.get(k) for k in ("name", "description", "inputSchema")} for t in tools),
+        key=lambda t: t["name"],
+    )
+    return {
+        "server": server,
+        "tools": [t["name"] for t in listing],
+        "tools_sha256": hashlib.sha256(
+            json.dumps(listing, sort_keys=True).encode()
+        ).hexdigest(),
+    }
 
 
 def run(argv: list[str], cwd: Path | None = None) -> str:
@@ -288,16 +314,17 @@ async def main_async(args: argparse.Namespace) -> None:
     reference = cfg.reference_repo(config)
     # Workspace sessions run unsandboxed here; give run_command the per-run
     # venv (Python 3.13 + workspace_env packages) instead of this process's.
-    svc._exec_bin = lambda workspace: workspace / ".venv" / "bin"
+    # Extra arguments (the sandbox user in newer registry versions) are ignored.
+    svc._exec_bin = lambda workspace, *_: workspace / ".venv" / "bin"
     context = {
         "reference": reference,
         "reference_state": git_state(reference),
         "registry": git_state(backend.repo_path(config)),
         "evaluation": git_state(cfg.REPO_ROOT),
-        "mcp_server": await mcp_server_version(config["pins"]["mcp_url"]),
+        "mcp_server": await mcp_server_info(config["pins"]["mcp_url"]),
     }
     print(
-        f"MCP server: {context['mcp_server']}; registry: {context['registry']}; reference: {context['reference_state']}"
+        f"MCP server: {context['mcp_server']['server']} ({len(context['mcp_server']['tools'])} tools, {context['mcp_server']['tools_sha256'][:12]}); registry: {context['registry']}; reference: {context['reference_state']}"
     )
     repetitions = args.repetitions or config["run"]["repetitions"]
     for rep in range(repetitions):

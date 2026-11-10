@@ -66,7 +66,7 @@ Each run directory `evaluation/runs/<model>/<level>/repNN/` contains `meta.json`
 4. The level prompt is sent. The runner stops the turn when the call budget (LLM calls) or time budget is used up. If a turn ends without the expected final line, the scripted reply from `config.toml` is sent, at most `max_replies` times; each counts as an intervention.
 5. The workspace is copied into the run directory and graded.
 
-The runner configures the backend through its module-level settings (`MODEL`, `MAX_TOKENS`, `RESULT_MAX_CHARS`) and replaces its private `_exec_bin`. A refactoring of the registry's workspace modules can break this, so rerun the tests after changing `registry_commit`.
+The runner configures the backend through its module-level settings (`MODEL`, `MAX_TOKENS`, `RESULT_MAX_CHARS`) and replaces its private `_exec_bin` (ignoring any extra arguments, such as the sandbox user in newer registry versions). A refactoring of the registry's workspace modules can break this, so rerun the tests after changing `registry_commit`.
 
 ## Grading
 
